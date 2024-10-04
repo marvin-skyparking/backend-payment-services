@@ -1,0 +1,37 @@
+networks:
+  nodeapps: # ini nama network, isolation docker network
+
+services:
+  node-db:
+    image: mariadb
+    restart: always
+    container_name: node-db
+    volumes:
+      - data_backup:/var/lib/mysql
+    networks:
+      - nodeapps
+    ports:
+      - 3306:3306
+    environment:
+      - MARIADB_DATABASE=node_app
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=example
+      - MARIADB_ROOT_PASSWORD=root@example
+
+  node-app: # ini nama services
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: node-apps # ini di sesuaiin sama nama services aja
+    restart: always
+    ports:
+      - ${APP_PORT}:3000
+    networks:
+      - nodeapps
+    volumes:
+      - .env:/home/node/app/.env # [directory_host]:[directory_container]
+    depends_on:
+      - node-db # artinya bakal UP klo node-db sudah UP
+
+volumes:
+  data_backup:
