@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import envConfig from '../configs/env.config';
 import sentryUtils from './sentry.utils';
 

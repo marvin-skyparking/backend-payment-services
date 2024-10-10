@@ -1,14 +1,44 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
+const typescriptEslintParser = require('@typescript-eslint/parser');
 
-
-export default [
-  {files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
-  {files: ["**/*.js"], languageOptions: {sourceType: "commonjs"}},
-  {languageOptions: { globals: globals.browser }},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
+const config = [
+  {
+    files: ["**/*.ts", "**/*.tsx"], // TypeScript files
+    languageOptions: {
+      ecmaVersion: 12,
+      sourceType: "module",
+      globals: {
+        ...require("globals").browser,
+        ...require("globals").node,
+      },
+      parser: typescriptEslintParser,
+    },
+    plugins: {
+      react: require("eslint-plugin-react"),
+      "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
+      // prettier: require("eslint-plugin-prettier"), // Remove this if not needed
+    },
+    rules: {
+      // 'prettier/prettier': 'error', // Remove or comment out this rule
+    },
+  },
+  {
+    files: ["**/*.js", "**/*.jsx"], // JavaScript files
+    languageOptions: {
+      ecmaVersion: 12,
+      sourceType: "module",
+      globals: {
+        ...require("globals").browser,
+        ...require("globals").node,
+      },
+    },
+    plugins: {
+      react: require("eslint-plugin-react"),
+      // prettier: require("eslint-plugin-prettier"), // Remove this if not needed
+    },
+    rules: {
+      // 'prettier/prettier': 'error', // Remove or comment out this rule
+    },
+  },
 ];
+
+module.exports = config;

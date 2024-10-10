@@ -3,21 +3,22 @@
   "version": "1.0.0",
   "main": "src/App.ts",
   "license": "MIT",
-"scripts": {
-  "lint": "npx eslint . --fix",
-  "lint:build": "npx eslint . --fix && yarn build",
-  "prepare": "husky",
-  "postinstall": "patch-package",
-  "build": "tsc && yarn copy-keys",
-  "start": "node dist/server.js",
-  "copy-keys": "copyfiles -u 1 src/ThirdParty/*.pem src/ThirdParty/*.pub dist/",
-  "dev": "yarn prettier:format && ts-node-dev --respawn --transpile-only src/server.ts",
-  "migration:generate": "sequelize-cli migration:generate",
-  "migrate": "sequelize-cli db:migrate",
-  "migration:undo": "sequelize-cli db:migrate:undo",
-  "migration:undo:all": "sequelize-cli db:migrate:undo:all",
-  "prettier:format": "prettier --config .prettierrc src/**/*.ts --write"
-},
+  "scripts": {
+    "lint": "npx eslint . --fix",
+    "lint:build": "npx eslint . --fix && yarn build",
+    "prepare": "husky",
+    "postinstall": "patch-package",
+    "build": "tsc && yarn copy-keys",
+    "start": "node dist/server.js",
+    "copy-keys": "copyfiles -u 1 src/ThirdParty/*.pem src/ThirdParty/*.pub dist/",
+    "dev": "yarn prettier:format && ts-node-dev --respawn --transpile-only src/server.ts",
+    "migration:generate": "sequelize-cli migration:generate",
+    "migrate": "sequelize-cli db:migrate",
+    "migration:undo": "sequelize-cli db:migrate:undo",
+    "migration:undo:all": "sequelize-cli db:migrate:undo:all",
+    "prettier:format": "prettier --config .prettierrc src/**/*.ts --write",
+    "copy-static-files": "copyfiles -u 1 './src/uploads/**/*' './src/ThirdParty/**/*'"
+  },
   "lint-staged": {
     "*.ts": "eslint --fix"
   },
@@ -66,6 +67,8 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
     "copyfiles": "^2.4.1",
     "sequelize-cli": "^6.6.2"
   },
