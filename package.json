@@ -8,16 +8,17 @@
     "lint:build": "npx eslint . --fix && yarn build",
     "prepare": "husky",
     "postinstall": "patch-package",
-    "build": "tsc && yarn copy-keys",
+    "build": "tsc && yarn copy-static-files",
     "start": "node dist/server.js",
-    "copy-keys": "copyfiles -u 1 src/ThirdParty/*.pem src/ThirdParty/*.pub dist/",
+    "copy-keys": "copyfiles -u 1 './src/uploads/**/*' './src/ThirdParty/BAYARIND_DATA_VA/**/*.{pem,pub}' './src/ThirdParty/NOBU_DATA_OPEN_BANK/**/*.{pem,pub}' './src/ThirdParty/NOBU_DATA_VA/**/*.{pem,pub}'",
     "dev": "yarn prettier:format && ts-node-dev --respawn --transpile-only src/server.ts",
     "migration:generate": "sequelize-cli migration:generate",
     "migrate": "sequelize-cli db:migrate",
     "migration:undo": "sequelize-cli db:migrate:undo",
     "migration:undo:all": "sequelize-cli db:migrate:undo:all",
     "prettier:format": "prettier --config .prettierrc src/**/*.ts --write",
-    "copy-static-files": "copyfiles -u 1 './src/uploads/**/*' './src/ThirdParty/**/*.{pem,pub}'"
+    "copy-static-files": "copyfiles -u 1 './src/uploads/**/*' './src/ThirdParty/**/*.{pem,pub}' && echo 'Files copied!' || echo 'Copy failed!'"
+
   },
   "lint-staged": {
     "*.ts": "eslint --fix"
