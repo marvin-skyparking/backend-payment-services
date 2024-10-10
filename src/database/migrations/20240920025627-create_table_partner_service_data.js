@@ -27,7 +27,7 @@ module.exports = {
         allowNull: true, // Optional field
       },
       type_payment: {
-        type: Sequelize.ENUM('E_WALLET', 'VIRTUAL_ACCOUNT', 'QRIS', 'PAYLATER', 'CREDIT_CARD', 'DEBIT_CARD'),
+        type: Sequelize.ENUM('E_WALLET', 'VIRTUAL_ACCOUNT', 'QRIS', 'PAYLATER', 'CREDIT_CARD', 'DEBIT_CARD','POINT'),
         allowNull: false, // Required field
       },
       gateway_partner: {

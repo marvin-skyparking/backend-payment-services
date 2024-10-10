@@ -3,6 +3,12 @@ export const BayarIND_Message = {
     responseCode: '4012600',
     responseMessage: 'Unauthorized. [verify sign failed]'
   },
+
+  ExpiredDate: {
+    responseCode: '4042419',
+    responseMessage: 'Bill expired',
+    virtualAccountData: {}
+  },
   BillNotFound: {
     responseCode: '4042512',
     responseMessage: 'Bill Not Found',

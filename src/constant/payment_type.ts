@@ -4,5 +4,6 @@ export const validTypePayments = [
   'QRIS',
   'PAYLATER',
   'CREDIT_CARD',
-  'DEBIT_CARD'
+  'DEBIT_CARD',
+  'POINT'
 ];

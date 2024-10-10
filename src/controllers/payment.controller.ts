@@ -24,6 +24,7 @@ import { BayarIND_Message } from '../constant/bayarind_message';
 import axios from 'axios';
 import {
   generateStringToSign,
+  signAsymmetricSignatureString,
   signWithRSA,
   verifyAsymmetricSignature,
   verifyAsymmetricSignatureNobu
@@ -46,6 +47,7 @@ export async function createVAController(req: Request, res: Response) {
       customerNo,
       AppModule,
       Invoice,
+      ExpiredDate,
       Payment_using,
       virtualAccountName,
       virtualAccountEmail,
@@ -57,6 +59,7 @@ export async function createVAController(req: Request, res: Response) {
       !customerNo ||
       !AppModule ||
       !Invoice ||
+      !ExpiredDate ||
       !Payment_using ||
       !virtualAccountName ||
       !virtualAccountEmail ||
@@ -64,7 +67,7 @@ export async function createVAController(req: Request, res: Response) {
     ) {
       return res.status(400).json({
         message:
-          'Missing required fields:  virtualAccountNo, virtualAccountName, virtualAccountEmail, totalAmount'
+          'Missing required fields:  virtualAccountNo, virtualAccountName, virtualAccountEmail, totalAmount, ExpiredDate'
       });
     }
 
@@ -74,6 +77,7 @@ export async function createVAController(req: Request, res: Response) {
       partnerBank: data_VA.bank_id ?? '',
       AppModule,
       customerNo,
+      ExpiredDate,
       virtualAccountName,
       virtualAccountEmail,
       totalAmount,
@@ -90,9 +94,10 @@ export async function createVAController(req: Request, res: Response) {
       if (paymentData.responseCode === '2002700') {
         const data = {
           trx_id: paymentData.virtualAccountData.trxId,
+          expired_date: paymentData.virtualAccountData.expiredDate,
           invoice_number: req.body.Invoice,
           virtual_account_number:
-            paymentData.virtualAccountData.virtualAccountNo,
+            paymentData.virtualAccountData.virtualAccountNo.trim(),
           virtual_account_name:
             paymentData.virtualAccountData.virtualAccountName,
           virtual_account_email:
@@ -105,7 +110,9 @@ export async function createVAController(req: Request, res: Response) {
         };
 
         const insert_transaction = await createPaymentTransaction(data);
+
         console.log(insert_transaction);
+
         return res.status(201).json({
           message: 'Virtual Account created successfully',
           data: paymentData
@@ -238,6 +245,14 @@ export const createPaymentVA = async (req: Request, res: Response) => {
       return res.status(400).send(BayarIND_Message.InvalidAmount);
     }
 
+    // Validate expired Date
+    const currentDate = new Date();
+    const expirationDate = new Date(validate_transaction.expired_date);
+
+    if (currentDate > expirationDate) {
+      return res.status(400).send(BayarIND_Message.ExpiredDate);
+    }
+
     const update_payment_transaction = await completedPaymentServiceByTrxId(
       payload.trxId
     );
@@ -273,8 +288,6 @@ export const createPaymentVA = async (req: Request, res: Response) => {
 };
 
 export async function generate_b2b_token_VA(req: Request, res: Response) {
-  
-
   const content_type = req.headers['content-type'] as string;
   const timestamp = req.headers['x-timestamp'] as string;
   const clientKey = req.headers['x-client-key'] as string;
@@ -292,18 +305,54 @@ export async function generate_b2b_token_VA(req: Request, res: Response) {
     return res.status(400).send(NOBU_Message.Invalid_Format_XSTAMP);
   }
 
-  const id_bank = 'b1ea702f-ddbc-44ea-ac80-44542365b3c5'
+  const id_bank = 'b1ea702f-ddbc-44ea-ac80-44542365b3c5';
 
-  const validate_key = await findPaymentServiceById(id_bank)
+  const validate_key = await findPaymentServiceById(id_bank);
 
-  const client_key = validate_key?.dataValues.client_secret
+  const client_key = validate_key?.dataValues.client_secret;
 
-  if(clientKey!=client_key){
+  if (clientKey != client_key) {
     return res.status(401).send(NOBU_Message.Invalid_Client_Key);
   }
 
-  const validate_token = verifyAsymmetricSignatureNobu(signature,clientKey,timestamp)
+  const validate_token = verifyAsymmetricSignatureNobu(
+    signature,
+    clientKey,
+    timestamp
+  );
 
- console.log(validate_token)
+  console.log(validate_token);
 
+  if (!validate_token) {
+    return res.status(401).send(NOBU_Message.Invalid_Signature);
+  }
+}
+
+export async function simulateSignatureController(req: Request, res: Response) {
+  try {
+    // Extract clientKey and timestamp from the request body
+    const { clientKey, timestamp } = req.body;
+
+    if (!clientKey || !timestamp) {
+      return res
+        .status(400)
+        .json({ error: 'clientKey and timestamp are required.' });
+    }
+
+    // Generate the string to sign
+    const stringToSign = generateStringToSign(clientKey, timestamp);
+
+    // Sign the string using RSA-SHA256
+    const signature = signAsymmetricSignatureString(stringToSign);
+
+    // Return the signed string (signature)
+    return res.status(200).json({
+      message: 'Signature generated successfully',
+      stringToSign,
+      signature
+    });
+  } catch (error) {
+    console.error('Error generating signature:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }

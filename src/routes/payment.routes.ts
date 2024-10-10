@@ -3,7 +3,8 @@ import {
   createPaymentVA,
   createVAController,
   generate_b2b_token_VA,
-  inquiryStatusVAController
+  inquiryStatusVAController,
+  simulateSignatureController
 } from '../controllers/payment.controller';
 
 const paymentRouter = express.Router();
@@ -16,7 +17,7 @@ paymentRouter.post(
 );
 paymentRouter.post('/v1.0/transfer-va/payment', createPaymentVA);
 paymentRouter.post('/v1.0/nobu/generate-token', generate_b2b_token_VA);
-
+paymentRouter.post('/v1.0/nobu/simulateSignature', simulateSignatureController);
 // //Virtual Account Payment
 // paymentRouter.post('/v1.0/transfer-va/payment', PaymentRequest);
 // paymentRouter.post('/v1.0/transfer-va/create-va', createVirtualAccount);

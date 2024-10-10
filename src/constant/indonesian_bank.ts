@@ -1027,5 +1027,12 @@ export const Bank = [
     swift_code: 'GOPAY',
     name: 'GOPAY',
     code: 'EWALLET_GOPAY'
+  },
+  {
+    bank_code: 'SKYPOINTS',
+    bank_name: 'SKYPOINTS (PT SKYPARKING UTAMA  )',
+    swift_code: 'SKYPOINTS',
+    name: 'SKYPOINTS',
+    code: 'SKYPOINTS'
   }
 ];

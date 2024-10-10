@@ -1,4 +1,8 @@
 export const NOBU_Message = {
+  Invalid_Signature: {
+    responseCode: '4002501',
+    responseMessage: 'Unauthorized Signature'
+  },
   Invalid_Format_Content_Type: {
     responseCode: '4002501',
     responseMessage: 'Invalid Field Format Content-Type Should application/json'
@@ -39,5 +43,9 @@ export const NOBU_Message = {
     responseCode: '4042414',
     responseMessage: 'Bill has been Paid',
     virtualAccountData: {}
+  },
+  OPEN_BANK_INVALID_TOKEN: {
+    responseCode: '4011401',
+    responseMessage: 'Access Token Invalid'
   }
 };

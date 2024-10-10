@@ -14,10 +14,19 @@ export async function generate_b2b_token_nobu(req: Request, res: Response) {
 
     return OK(res, 'Success', token);
   } catch (error: any) {
-    return res.status(500).json({
-      message: 'Internal server error',
-      error: error.message
-    });
+    if (error.response) {
+      // API responded with an error, return that error message
+      return res.status(error.response.status).json({
+        responseCode: error.response.data.responseCode || 'Unknown code',
+        responseMessage: error.response.data.responseMessage || 'Unknown error'
+      });
+    } else {
+      // Some other error (e.g., network error or unexpected error)
+      return res.status(500).json({
+        message: 'Internal server error',
+        error: error.message || 'An unknown error occurred'
+      });
+    }
   }
 }
 
@@ -49,9 +58,18 @@ export async function GetBankStatementController(req: Request, res: Response) {
     // Return successful response
     return OK(res, 'Success', token);
   } catch (error: any) {
-    return res.status(500).json({
-      message: 'Internal server error',
-      error: error.message
-    });
+    if (error.response) {
+      // API responded with an error, return that error message
+      return res.status(error.response.status).json({
+        responseCode: error.response.data.responseCode || 'Unknown code',
+        responseMessage: error.response.data.responseMessage || 'Unknown error'
+      });
+    } else {
+      // Some other error (e.g., network error or unexpected error)
+      return res.status(500).json({
+        message: 'Internal server error',
+        error: error.message || 'An unknown error occurred'
+      });
+    }
   }
 }

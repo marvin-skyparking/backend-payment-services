@@ -28,14 +28,15 @@ export async function SNAP_BCA_VA(payload: PayloadVA): Promise<any> {
   // Generate a unique external ID
   const externalID = generateRandomNumber(16);
 
-  const expiredDate = new Date();
+  // const expiredDate = new Date();
 
-  // Add 1 day (24 hours)
-  expiredDate.setDate(expiredDate.getDate() + 1);
+  // // Add 1 day (24 hours)
+  // expiredDate.setDate(expiredDate.getDate() + 1);
 
-  // Format the date string without milliseconds and with Jakarta timezone
-  const formattedExpiredDate =
-    expiredDate.toISOString().slice(0, 19) + '+07:00';
+  // // Format the date string without milliseconds and with Jakarta timezone
+  // const formattedExpiredDate =
+  //   expiredDate.toISOString().slice(0, 19) + '+07:00';
+
   // Prepare the request body
   const requestBody: CreateVARequest = {
     partnerServiceId: paddedPartnerServiceId,
@@ -48,7 +49,7 @@ export async function SNAP_BCA_VA(payload: PayloadVA): Promise<any> {
       value: `${payload.totalAmount}.00`, // Ensure this is a string representing the amount
       currency: 'IDR' // Currency in IDR (Indonesian Rupiah)
     },
-    expiredDate: formattedExpiredDate, // Assuming an expiration date is required
+    expiredDate: payload.ExpiredDate, // Assuming an expiration date is required
     billDetails: [
       {
         billDescription: {

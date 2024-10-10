@@ -14,7 +14,8 @@ export interface PaymentServiceDataAttributes {
     | 'QRIS'
     | 'PAYLATER'
     | 'CREDIT_CARD'
-    | 'DEBIT_CARD';
+    | 'DEBIT_CARD'
+    | 'POINT';
   gateway_partner?: string;
   client_secret?: string;
   secret_key?: string;
@@ -48,7 +49,8 @@ class PaymentServiceData
     | 'QRIS'
     | 'PAYLATER'
     | 'CREDIT_CARD'
-    | 'DEBIT_CARD';
+    | 'DEBIT_CARD'
+    | 'POINT';
   public gateway_partner?: string;
   public client_secret?: string;
   public secret_key?: string;
@@ -88,7 +90,8 @@ PaymentServiceData.init(
         'QRIS',
         'PAYLATER',
         'CREDIT_CARD',
-        'DEBIT_CARD'
+        'DEBIT_CARD',
+        'POINT'
       ),
       allowNull: false
     },

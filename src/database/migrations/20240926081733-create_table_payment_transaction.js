@@ -3,12 +3,16 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Payment_Transactions', {
+    await queryInterface.createTable('payment_transactions', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
+      },
+      expired_date:{
+        type: Sequelize.STRING,
+        allowNull: false
       },
       trx_id: {
         type: Sequelize.STRING,
@@ -48,7 +52,7 @@ module.exports = {
         allowNull: false,
       },
       app_module: {
-        type: Sequelize.ENUM('APP_A', 'APP_B', 'APP_C'),
+        type: Sequelize.ENUM('APP_MEMBERSHIP', 'APP_VOUCHER', 'APP_OTHERS'),
         allowNull: false,
       },
       created_at: {
@@ -65,6 +69,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Payment_Transactions');
+    await queryInterface.dropTable('payment_transactions');
   },
 };

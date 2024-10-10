@@ -98,10 +98,10 @@ export function verifyAsymmetricSignatureNobu(
     const stringToSign = `${client_key}|${timestamp}`;
 
     // Create a verifier object using SHA256
-    const verifier = crypto.createVerify('RSA-SHA256');
+    const verifier = crypto.createVerify('SHA256');
 
     // Update the verifier with the string to sign
-    verifier.update(stringToSign);
+    verifier.update(stringToSign, 'utf8');
     verifier.end();
 
     // Verify the signature using the public key
@@ -117,7 +117,6 @@ export function verifyAsymmetricSignatureNobu(
   }
 }
 
-
 export function generateStringToSign(
   clientKey: string,
   timestamp: string
@@ -131,6 +130,14 @@ export function signWithRSA(stringToSign: string): string {
   sign.update(stringToSign);
   sign.end();
   return sign.sign(PRIVATE_KEY, 'base64'); // Generate RSA signature and encode in base64
+}
+
+export function signAsymmetricSignatureString(stringToSign: string): string {
+  const sign = crypto.createSign('RSA-SHA256');
+  sign.update(stringToSign);
+  sign.end();
+  const signature = sign.sign(PRIVATE_KEY, 'base64'); // Use the private key to sign
+  return signature;
 }
 
 export function generateStringToSignTransactional(

@@ -35,11 +35,6 @@ export async function generate_b2b_token(grantType: string) {
     }
   };
 
-  console.log(stringToSign);
-  console.log(signature);
-  console.log(headers);
-  console.log(requestBody);
-
   //REJECT SSL
   const httpsAgent = new https.Agent({
     rejectUnauthorized: false // Disable SSL verification (for self-signed certificates)
@@ -79,7 +74,7 @@ export async function GetBankStatement(
   const httpMethod = 'POST';
   const relativePath = '/v1.0/bank-statement/';
   const requestBody = payload;
-  const accessToken = '54wm89AFSSUG8lytQh0vqsKEKRHnv32C4iySWpz4LkMl2HR9iEHwMX';
+  const accessToken = 'WPCD2UlSbHv2pUXTnYk9vHoUyAmq8LL3LACBLC7kCyqL8XyZdrC1Dh';
 
   const stringToSign = generateStringToSignTransactional(
     httpMethod,
@@ -95,20 +90,16 @@ export async function GetBankStatement(
 
   const IPADDRESS = await axios.get('https://api.ipify.org?format=json');
 
-  console.log(stringToSign);
-
   const headers = {
     'Content-Type': 'application/json',
-    Authorization:
-      'Bearer 54wm89AFSSUG8lytQh0vqsKEKRHnv32C4iySWpz4LkMl2HR9iEHwMX',
+    Authorization: 'Bearer ' + accessToken,
     'X-TIMESTAMP': timestamp,
     'X-PARTNER-ID': partner_id,
     'X-EXTERNAL-ID': generateRandomNumber(16),
     'X-SIGNATURE': signature,
     'X-IP-ADDRESS': IPADDRESS.data.ip
   };
-  console.log(headers);
-  console.log(requestBody);
+
   const response = await axios.post(
     'https://sandbox.nobubank.com:8065/v1.0/bank-statement/',
     requestBody,

@@ -20,6 +20,7 @@ interface additionalInfoDetails {
 export interface PayloadVA {
   customerNo: string;
   partnerBank: string;
+  ExpiredDate: string;
   partnerServiceId: string;
   virtualAccountName: string;
   virtualAccountEmail: string;
@@ -54,6 +55,7 @@ export enum AppModule {
 export class PaymentTransaction extends Model {
   public id!: string;
   public trx_id!: string;
+  public expired_date!: string;
   public invoice_number!: string;
   public virtual_account_number!: string;
   public virtual_account_name!: string;
@@ -81,6 +83,10 @@ PaymentTransaction.init(
     trx_id: {
       type: DataTypes.STRING,
       unique: true,
+      allowNull: false
+    },
+    expired_date: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     invoice_number: {
