@@ -273,7 +273,7 @@ export const createPaymentVA = async (req: Request, res: Response) => {
       const requestBody = update_payment_transaction?.dataValues;
 
       const response = await axios.post(
-        `http://localhost:9000/v1/productPurchase/receivePayment`,
+        `https://apipaymentservice.skyparking.online/v1/productPurchase/receivePayment`,
         requestBody
       );
 
