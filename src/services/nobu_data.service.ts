@@ -62,19 +62,28 @@ export async function generate_b2b_token(grantType: string) {
 }
 
 export async function GetBankStatement(
-  payload: RequestSinglePage
+  payload: RequestSinglePage,
+  authorization: string
 ): Promise<any> {
   //REJECT SSL
   const httpsAgent = new https.Agent({
     rejectUnauthorized: false // Disable SSL verification (for self-signed certificates)
   });
 
+  const token = authorization
+    ? authorization.replace('Bearer ', '')
+    : undefined;
+
+  if (!token) {
+    throw new Error('Access token is required'); // Throw an error if token is undefined
+  }
+
   const timestamp = getCurrentTimestamp();
   const partner_id = '6b722b8657b74a44b3de46e23b2bf75b';
   const httpMethod = 'POST';
   const relativePath = '/v1.0/bank-statement/';
   const requestBody = payload;
-  const accessToken = 'WPCD2UlSbHv2pUXTnYk9vHoUyAmq8LL3LACBLC7kCyqL8XyZdrC1Dh';
+  const accessToken = token;
 
   const stringToSign = generateStringToSignTransactional(
     httpMethod,
@@ -92,7 +101,64 @@ export async function GetBankStatement(
 
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer ' + accessToken,
+    Authorization: authorization,
+    'X-TIMESTAMP': timestamp,
+    'X-PARTNER-ID': partner_id,
+    'X-EXTERNAL-ID': generateRandomNumber(16),
+    'X-SIGNATURE': signature,
+    'X-IP-ADDRESS': IPADDRESS.data.ip
+  };
+
+  const response = await axios.post(
+    'https://sandbox.nobubank.com:8065/v1.0/bank-statement/',
+    requestBody,
+    { headers, httpsAgent }
+  );
+
+  return response.data;
+}
+
+export async function GetBankStatementMultiple(
+  payload: RequestSinglePage,
+  authorization: string
+): Promise<any> {
+  //REJECT SSL
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: false // Disable SSL verification (for self-signed certificates)
+  });
+
+  const token = authorization
+    ? authorization.replace('Bearer ', '')
+    : undefined;
+
+  if (!token) {
+    throw new Error('Access token is required'); // Throw an error if token is undefined
+  }
+
+  const timestamp = getCurrentTimestamp();
+  const partner_id = '6b722b8657b74a44b3de46e23b2bf75b';
+  const httpMethod = 'POST';
+  const relativePath = '/v1.0/bank-statement/';
+  const requestBody = payload;
+  const accessToken = token;
+
+  const stringToSign = generateStringToSignTransactional(
+    httpMethod,
+    relativePath,
+    accessToken,
+    requestBody,
+    timestamp
+  );
+
+  // Generate the HMAC signature (you may need to replace 'your_secret_key' with the actual secret key)
+  const secretKey = 'ed2af514-1e15-4fdc-a0f0-a7168aa3393f'; // Replace with your actual secret key used for HMAC
+  const signature = generateHMACSignature(stringToSign, secretKey);
+
+  const IPADDRESS = await axios.get('https://api.ipify.org?format=json');
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: authorization,
     'X-TIMESTAMP': timestamp,
     'X-PARTNER-ID': partner_id,
     'X-EXTERNAL-ID': generateRandomNumber(16),

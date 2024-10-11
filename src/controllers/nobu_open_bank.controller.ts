@@ -32,6 +32,13 @@ export async function generate_b2b_token_nobu(req: Request, res: Response) {
 
 export async function GetBankStatementController(req: Request, res: Response) {
   try {
+    const authorizationHeader = req.headers.authorization;
+
+    if (!authorizationHeader) {
+      return res.status(401).json({
+        message: 'Authorization header is required'
+      });
+    }
     // Extract necessary data from the request body
     const {
       partnerReferenceNo,
@@ -53,7 +60,7 @@ export async function GetBankStatementController(req: Request, res: Response) {
     };
 
     // Call GetBankStatement with the constructed payload
-    const token = await GetBankStatement(payload);
+    const token = await GetBankStatement(payload, authorizationHeader);
 
     // Return successful response
     return OK(res, 'Success', token);
