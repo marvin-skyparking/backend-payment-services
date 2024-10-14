@@ -186,7 +186,7 @@ export async function createVAController(req: Request, res: Response) {
 
       const insert_transaction = await createPaymentTransaction(data);
 
-      return res.status(201).json({ insert_transaction });
+      return res.status(201).json({ virtualAccountData: insert_transaction });
     }
   } catch (error: any) {
     console.error('Error creating virtual account:', error);
