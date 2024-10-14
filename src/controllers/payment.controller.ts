@@ -170,24 +170,26 @@ export async function createVAController(req: Request, res: Response) {
       const trx_id = generateRandomNumber(16);
 
       const data = {
-        virtualAccountData: {
-          trx_id: trx_id,
-          expired_date: req.body.ExpiredDate,
-          invoice_number: req.body.Invoice,
-          virtual_account_number:
-            `${payload.partnerBank}` + `${payload.customerNo}`,
-          virtual_account_name: payload.virtualAccountName,
-          virtual_account_email: payload.virtualAccountEmail,
-          payment_using: req.body.Payment_using,
-          module_name: 'BANK_NATIONAL' + '_NOBU_' + req.body.Payment_using,
-          status_transaction: StatusTransaction.PENDING,
-          paid_amount: payload.totalAmount,
-          app_module: req.body.AppModule
+        data: {
+          virtualAccountData: {
+            trx_id: trx_id,
+            expired_date: req.body.ExpiredDate,
+            invoice_number: req.body.Invoice,
+            virtual_account_number:
+              `${payload.partnerBank}` + `${payload.customerNo}`,
+            virtual_account_name: payload.virtualAccountName,
+            virtual_account_email: payload.virtualAccountEmail,
+            payment_using: req.body.Payment_using,
+            module_name: 'BANK_NATIONAL' + '_NOBU_' + req.body.Payment_using,
+            status_transaction: StatusTransaction.PENDING,
+            paid_amount: payload.totalAmount,
+            app_module: req.body.AppModule
+          }
         }
       };
 
       const insert_transaction = await createPaymentTransaction(
-        data.virtualAccountData
+        data.data.virtualAccountData
       );
 
       if (!insert_transaction) {
