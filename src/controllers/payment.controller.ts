@@ -177,7 +177,7 @@ export async function createVAController(req: Request, res: Response) {
           expired_date: req.body.ExpiredDate,
           invoice_number: req.body.Invoice,
           virtual_account_number:
-            `${payload.partnerBank}` + `${payload.customerNo}`.padStart(8, '0'),
+            `${payload.partnerBank}` + `${payload.customerNo}`.padStart(8, ' '),
           virtual_account_name: payload.virtualAccountName,
           virtual_account_email: payload.virtualAccountEmail,
           payment_using: req.body.Payment_using,
