@@ -83,7 +83,7 @@ PaymentTransaction.init(
     trx_id: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: false
+      allowNull: true
     },
     expired_date: {
       type: DataTypes.STRING,

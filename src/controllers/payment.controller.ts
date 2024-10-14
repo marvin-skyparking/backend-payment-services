@@ -29,8 +29,12 @@ import {
 } from '../ThirdParty/NOBU_DATA_VA/Nobu_open_bank_gateway';
 import https from 'https';
 import { NOBU_Message } from '../constant/nobu_message';
-import { isValidTimestampFormat } from '../utils/helper.utils';
+import {
+  generateRandomNumber,
+  isValidTimestampFormat
+} from '../utils/helper.utils';
 import { createPaymentLog } from '../services/payment_log.service';
+import jwtUtils from '../utils/jwt.utils';
 
 // Create Virtual Account
 export async function createVAController(req: Request, res: Response) {
@@ -137,7 +141,7 @@ export async function createVAController(req: Request, res: Response) {
         const data_error = {
           status_module: 'FAILED',
           endpoint: 'create-va',
-          module_name: 'BAYARIND_BCAVIRTUAL_ACCOUNT',
+          module_name: 'BAYARIND_BCA_VIRTUAL_ACCOUNT',
           virtual_account_name: payload.virtualAccountName,
           virtual_account_number: payload.partnerBank + payload.customerNo,
           request_payload: payload,
@@ -163,15 +167,27 @@ export async function createVAController(req: Request, res: Response) {
       if (!ClientId) {
         return BadRequest(res, 'failed Not Found');
       }
+      const trx_id = generateRandomNumber(16);
 
-      // const token = await generate_b2b_token_VA(ClientId)
+      const data = {
+        trx_id: trx_id,
+        expired_date: req.body.ExpiredDate,
+        invoice_number: req.body.Invoice,
+        virtual_account_number:
+          `${payload.partnerBank}` + `${payload.customerNo}`,
+        virtual_account_name: payload.virtualAccountName,
+        virtual_account_email: payload.virtualAccountEmail,
+        payment_using: req.body.Payment_using,
+        module_name: 'BANK_NATIONAL' + '_NOBU_' + req.body.Payment_using,
+        status_transaction: StatusTransaction.PENDING,
+        paid_amount: payload.totalAmount,
+        app_module: req.body.AppModule
+      };
 
-      // const paymentData = await SNAP_NOBU_VA({
-      //   ...payload,
-      //   ClientId: payload.ClientId || 'default-client-id',  // Provide a default value when undefined
-      // });
+      const insert_transaction = await createPaymentTransaction(data);
+
+      return res.status(201).json({ insert_transaction });
     }
-    // // Return success response
   } catch (error: any) {
     console.error('Error creating virtual account:', error);
 
@@ -356,15 +372,27 @@ export async function generate_b2b_token_VA(req: Request, res: Response) {
 
   const validate_token = verifyAsymmetricSignatureNobu(
     signature,
-    clientKey,
+    client_key,
     timestamp
   );
-
-  console.log(validate_token);
 
   if (!validate_token) {
     return res.status(401).send(NOBU_Message.Invalid_Signature);
   }
+
+  const tokenResponse = await jwtUtils.generateH256Token({
+    clientKey,
+    signature,
+    timestamp
+  });
+
+  return res.status(200).json({
+    responseCode: '2007300',
+    responseMessage: 'Request has been processed successfully',
+    accessToken: tokenResponse, // Return the generated token
+    expiresIn: '3600', //hours
+    additionalInfo: {}
+  });
 }
 
 export async function simulateSignatureController(req: Request, res: Response) {

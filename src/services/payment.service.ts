@@ -15,13 +15,6 @@ import { BayarIND } from '../ThirdParty/BAYARIND_DATA_VA/bayarind_endpoint';
 import EnvConfig from '../configs/env.config';
 import { InquryStatus, PayloadVA } from '../models/payment.model';
 import { findPaymentServiceByPartnerId } from './partner_data.service';
-import {
-  generateStringToSign,
-  RequestAccessToken,
-  signWithRSA
-} from '../ThirdParty/NOBU_DATA_VA/Nobu_open_bank_gateway';
-import https from 'https';
-import { Unauthorized } from '../utils/response/common.response';
 
 //SNAP BCA
 export async function SNAP_BCA_VA(payload: PayloadVA): Promise<any> {
@@ -100,10 +93,10 @@ export async function SNAP_BCA_VA(payload: PayloadVA): Promise<any> {
     { headers }
   );
 
-  console.log(timestamp);
-  console.log(requestBody);
-  console.log(headers);
-  console.log(response.data);
+  // console.log(timestamp);
+  // console.log(requestBody);
+  // console.log(headers);
+  // console.log(response.data);
   // Process the response and return relevant data
   const paymentData = response.data;
 
@@ -112,13 +105,12 @@ export async function SNAP_BCA_VA(payload: PayloadVA): Promise<any> {
 
 export async function SNAP_NOBU_VA(payload: PayloadVA): Promise<any> {
   const timestamp = getCurrentTimestamp();
-  // // Padding partnerServiceId and virtualAccountNo
-  const paddedPartnerServiceId = payload.partnerBank.padStart(8, ' ');
-  // const paddedVirtualAccountNo = (
-  //   paddedPartnerServiceId + payload.customerNo
-  // ).padStart(8, ' ');
-  // // Generate a unique external ID
-  // const externalID = generateRandomNumber(16);
+
+  // Padding partnerServiceId and virtualAccountNo
+  const PartnerServiceId = payload.partnerBank;
+  const VirtualAccountNo = PartnerServiceId + payload.customerNo;
+  const expirationDate = payload.ExpiredDate;
+  const invoice_number = payload;
 
   // const expiredDate = new Date();
 
