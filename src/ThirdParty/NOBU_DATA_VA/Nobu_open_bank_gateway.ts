@@ -59,7 +59,9 @@ export function signAsymmetricSignature(stringToSign: string): string {
   const sign = crypto.createSign('RSA-SHA256');
   sign.update(stringToSign);
   sign.end();
-  const signature = sign.sign(PRIVATE_KEY, 'base64'); // Use the private key to sign
+
+  // Sign the data using the private key and return the signature in base64 format
+  const signature = sign.sign(PRIVATE_KEY, 'base64');
   return signature;
 }
 
@@ -85,29 +87,24 @@ export function verifyAsymmetricSignature(
   }
 }
 
-/**
- * Verify Nobu Signature
- */
 export function verifyAsymmetricSignatureNobu(
   signature: string,
-  client_key: string,
+  stringToVerify: string,
   timestamp: string
 ): boolean {
+  // Decode Base64 signature
+  const decodedSignature = Buffer.from(signature, 'base64');
+
+  // Verify the signature
   try {
-    // Construct the string to sign
-    const stringToSign = `${client_key}|${timestamp}`;
-
-    // Create a verifier object using SHA256
-    const verifier = crypto.createVerify('SHA256');
-
-    // Update the verifier with the string to sign
-    verifier.update(stringToSign, 'utf8');
-    verifier.end();
-
-    // Verify the signature using the public key
-    const isValid = verifier.verify(
-      PUBLIC_KEY, // Use the existing PUBLIC_KEY constant
-      Buffer.from(signature, 'base64')
+    const isValid = crypto.verify(
+      'RSA-SHA256', // Algorithm
+      Buffer.from(timestamp), // Data to verify
+      {
+        key: PUBLIC_KEY, // Public key for verification
+        padding: crypto.constants.RSA_PKCS1_PADDING // Padding scheme
+      },
+      decodedSignature // The decoded signature
     );
 
     return isValid;

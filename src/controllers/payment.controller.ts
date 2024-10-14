@@ -25,18 +25,17 @@ import axios from 'axios';
 import {
   generateStringToSign,
   signAsymmetricSignatureString,
-  signWithRSA,
-  verifyAsymmetricSignature,
   verifyAsymmetricSignatureNobu
 } from '../ThirdParty/NOBU_DATA_VA/Nobu_open_bank_gateway';
 import https from 'https';
 import { NOBU_Message } from '../constant/nobu_message';
 import { isValidTimestampFormat } from '../utils/helper.utils';
+import { createPaymentLog } from '../services/payment_log.service';
 
+// Create Virtual Account
 export async function createVAController(req: Request, res: Response) {
   try {
     const VA_ID = req.params.id;
-
     const data_VA = await findPaymentServiceById(VA_ID);
 
     if (!data_VA) {
@@ -103,7 +102,7 @@ export async function createVAController(req: Request, res: Response) {
           virtual_account_email:
             paymentData.virtualAccountData.virtualAccountEmail,
           payment_using: req.body.Payment_using,
-          module_name: 'BAYARIND' + 'BCA' + req.body.Payment_using,
+          module_name: 'BAYARIND' + '_BCA_' + req.body.Payment_using,
           status_transaction: StatusTransaction.PENDING,
           paid_amount: paymentData.virtualAccountData.totalAmount.value,
           app_module: req.body.AppModule
@@ -111,11 +110,51 @@ export async function createVAController(req: Request, res: Response) {
 
         const insert_transaction = await createPaymentTransaction(data);
 
+        const success_data = {
+          status_module: 'SUCCESS',
+          endpoint: 'create-va',
+          module_name: data.module_name,
+          virtual_account_name: data.virtual_account_name,
+          virtual_account_number: data.virtual_account_number,
+          request_payload: payload,
+          response_payload: paymentData
+        };
+        const final_data = {
+          ...success_data,
+          ClientId: payload.ClientId || 'none'
+        };
+        const insert_log = await createPaymentLog(final_data);
+
+        if (!insert_log) {
+          return ServerError(req, res, 'Failed To Insert Log');
+        }
         console.log(insert_transaction);
 
         return res.status(201).json({
-          message: 'Virtual Account created successfully',
-          data: paymentData
+          paymentData
+        });
+      } else {
+        const data_error = {
+          status_module: 'FAILED',
+          endpoint: 'create-va',
+          module_name: 'BAYARIND_BCAVIRTUAL_ACCOUNT',
+          virtual_account_name: payload.virtualAccountName,
+          virtual_account_number: payload.partnerBank + payload.customerNo,
+          request_payload: payload,
+          response_payload: paymentData
+        };
+        const final_data = {
+          ...data_error,
+          ClientId: payload.ClientId || 'none'
+        };
+        const insert_log = await createPaymentLog(final_data);
+
+        if (!insert_log) {
+          return ServerError(req, res, 'Failed To Insert Log');
+        }
+
+        return res.status(400).json({
+          paymentData
         });
       }
     } else if (data_VA.code_bank === 'NATIONALNOBU') {
@@ -125,7 +164,7 @@ export async function createVAController(req: Request, res: Response) {
         return BadRequest(res, 'failed Not Found');
       }
 
-      //const token = await generate_b2b_token_VA(ClientId)
+      // const token = await generate_b2b_token_VA(ClientId)
 
       // const paymentData = await SNAP_NOBU_VA({
       //   ...payload,
@@ -356,3 +395,39 @@ export async function simulateSignatureController(req: Request, res: Response) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+// export async function generateB2BTokenVA(req: Request, res: Response) {
+//   try {
+//     // Extract headers and ensure they exist
+//     const contentType = req.headers['content-type'] as string;
+//     const timestamp = req.headers['x-timestamp'] as string;
+//     const clientKey = req.headers['x-client-key'] as string;
+//     const signature = req.headers['x-signature'] as string;
+
+//     // Check if headers are missing
+//     if (!contentType || contentType !== 'application/json') {
+//       return res.status(400).send('Invalid Content-Type, expected application/json.');
+//     }
+
+//     if (!timestamp) {
+//       return res.status(400).send('X-TIMESTAMP header is missing.');
+//     }
+
+//     if (!clientKey) {
+//       return res.status(400).send('X-CLIENT-KEY header is missing.');
+//     }
+
+//     if (!signature) {
+//       return res.status(400).send('X-SIGNATURE header is missing.');
+//     }
+
+//     const verifysignature = await verifyAsymmetricSignatureNobu(signature, clientKey,timestamp)
+//     console.log(verifysignature)
+//     // Proceed with additional validation and logic
+//     // For example, validating timestamp and signature
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     return res.status(500).send('An internal server error occurred.');
+//   }
+// }

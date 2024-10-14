@@ -15,6 +15,13 @@ import { BayarIND } from '../ThirdParty/BAYARIND_DATA_VA/bayarind_endpoint';
 import EnvConfig from '../configs/env.config';
 import { InquryStatus, PayloadVA } from '../models/payment.model';
 import { findPaymentServiceByPartnerId } from './partner_data.service';
+import {
+  generateStringToSign,
+  RequestAccessToken,
+  signWithRSA
+} from '../ThirdParty/NOBU_DATA_VA/Nobu_open_bank_gateway';
+import https from 'https';
+import { Unauthorized } from '../utils/response/common.response';
 
 //SNAP BCA
 export async function SNAP_BCA_VA(payload: PayloadVA): Promise<any> {

@@ -21,6 +21,15 @@ export interface RequestSinglePage {
   additionalInfo: object;
 }
 
+export interface RequestMultiplePage {
+  partnerReferenceNo: string;
+  bankCardToken: string;
+  accountNo: string;
+  fromDateTime: string;
+  toDateTime: string;
+  additionalInfo: object;
+}
+
 interface additionalInfos {
   partnerId: string;
 }
