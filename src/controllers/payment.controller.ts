@@ -177,7 +177,7 @@ export async function createVAController(req: Request, res: Response) {
           expired_date: req.body.ExpiredDate,
           invoice_number: req.body.Invoice,
           virtual_account_number:
-            `${payload.partnerBank}` + `${payload.customerNo}`,
+            `${payload.partnerBank}` + `${payload.customerNo}`.padStart(8, '0'),
           virtual_account_name: payload.virtualAccountName,
           virtual_account_email: payload.virtualAccountEmail,
           payment_using: req.body.Payment_using,
@@ -188,9 +188,11 @@ export async function createVAController(req: Request, res: Response) {
         }
       };
 
-      const insert_transaction = await createPaymentTransaction(
-        paymentData.virtualAccountData
-      );
+      const insert_transaction = await createPaymentTransaction({
+        ...paymentData.virtualAccountData,
+        virtual_account_number:
+          paymentData.virtualAccountData.virtual_account_number.trim()
+      });
 
       if (!insert_transaction) {
         return res.status(500).json({ message: 'Failed Create History' });
