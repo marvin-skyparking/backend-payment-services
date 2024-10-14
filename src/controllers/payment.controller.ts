@@ -169,34 +169,34 @@ export async function createVAController(req: Request, res: Response) {
       }
       const trx_id = generateRandomNumber(16);
 
-      const data = {
-        data: {
-          virtualAccountData: {
-            trx_id: trx_id,
-            expired_date: req.body.ExpiredDate,
-            invoice_number: req.body.Invoice,
-            virtual_account_number:
-              `${payload.partnerBank}` + `${payload.customerNo}`,
-            virtual_account_name: payload.virtualAccountName,
-            virtual_account_email: payload.virtualAccountEmail,
-            payment_using: req.body.Payment_using,
-            module_name: 'BANK_NATIONAL' + '_NOBU_' + req.body.Payment_using,
-            status_transaction: StatusTransaction.PENDING,
-            paid_amount: payload.totalAmount,
-            app_module: req.body.AppModule
-          }
+      const paymentData = {
+        responseCode: '200700',
+        responseMessage: 'Successful',
+        virtualAccountData: {
+          trx_id: trx_id,
+          expired_date: req.body.ExpiredDate,
+          invoice_number: req.body.Invoice,
+          virtual_account_number:
+            `${payload.partnerBank}` + `${payload.customerNo}`,
+          virtual_account_name: payload.virtualAccountName,
+          virtual_account_email: payload.virtualAccountEmail,
+          payment_using: req.body.Payment_using,
+          module_name: 'BANK_NATIONAL' + '_NOBU_' + req.body.Payment_using,
+          status_transaction: StatusTransaction.PENDING,
+          paid_amount: payload.totalAmount,
+          app_module: req.body.AppModule
         }
       };
 
       const insert_transaction = await createPaymentTransaction(
-        data.data.virtualAccountData
+        paymentData.virtualAccountData
       );
 
       if (!insert_transaction) {
         return res.status(500).json({ message: 'Failed Create History' });
       }
 
-      return res.status(201).json({ paymentData: data });
+      return res.status(201).json({ paymentData });
     }
   } catch (error: any) {
     console.error('Error creating virtual account:', error);
