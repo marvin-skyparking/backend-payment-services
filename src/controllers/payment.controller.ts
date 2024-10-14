@@ -190,7 +190,11 @@ export async function createVAController(req: Request, res: Response) {
         data.virtualAccountData
       );
 
-      return res.status(201).json({ paymentData: insert_transaction });
+      if (!insert_transaction) {
+        return res.status(500).json({ message: 'Failed Create History' });
+      }
+
+      return res.status(201).json({ paymentData: data });
     }
   } catch (error: any) {
     console.error('Error creating virtual account:', error);
