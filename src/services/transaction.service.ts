@@ -1,5 +1,11 @@
+import {
+  IPaginatePayload,
+  IPaginateResult,
+  IPaginateSkipTake
+} from '../interfaces/pagination.interface';
 import { PaymentTransaction } from '../models/payment.model'; // Adjust the import path as needed
 import * as PaymentTransaction_1 from '../models/payment.model'; // Import enums if needed
+import { Op } from 'sequelize';
 
 // Create a new payment transaction
 export const createPaymentTransaction = async (data: {
@@ -23,12 +29,61 @@ export const createPaymentTransaction = async (data: {
 };
 
 // Get all payment transactions
-export const getAllPaymentTransactions = async (): Promise<
-  PaymentTransaction[]
-> => {
+const calculatePagination = (
+  page: number,
+  limit: number
+): IPaginateSkipTake => {
+  const skip = (page - 1) * limit;
+  const take = limit;
+  return { skip, take };
+};
+
+export const getAllPaymentTransactions = async (
+  payload: IPaginatePayload
+): Promise<IPaginateResult> => {
   try {
-    const transactions = await PaymentTransaction.findAll();
-    return transactions;
+    const { page = 1, limit = 10, search = '', isDropdown } = payload;
+
+    // Calculate pagination skip and take
+    const { skip, take } = calculatePagination(page, limit);
+
+    // Define search filter if search term is provided
+    let searchCondition = {};
+    if (search) {
+      searchCondition = {
+        [Op.or]: [
+          { virtual_account_name: { [Op.like]: `%${search}%` } },
+          { payment_using: { [Op.like]: `%${search}%` } },
+          { status_transaction: { [Op.like]: `%${search}%` } },
+          { app_module: { [Op.like]: `%${search}%` } }
+        ]
+      };
+    }
+
+    // Fetch total number of payment transactions
+    const totalData = await PaymentTransaction.count();
+
+    // Fetch total filtered records based on search condition
+    const totalFiltered = await PaymentTransaction.count({
+      where: searchCondition
+    });
+
+    // Fetch the payment transactions with pagination and search condition
+    const transactions = await PaymentTransaction.findAll({
+      where: searchCondition,
+      offset: skip, // Skipping rows based on the page
+      limit: take, // Limiting the number of rows fetched
+      order: [['created_at', 'DESC']] // Optional: order by creation date
+    });
+
+    // Return paginated result
+    return {
+      totalData,
+      totalFiltered,
+      transactions, // The paginated list of transactions
+      currentPage: page,
+      pageSize: limit
+    };
   } catch (error: any) {
     throw new Error('Error fetching payment transactions: ' + error.message);
   }

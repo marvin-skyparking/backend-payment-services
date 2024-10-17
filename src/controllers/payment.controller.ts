@@ -17,6 +17,7 @@ import {
 import { InquryStatus, StatusTransaction } from '../models/payment.model';
 import {
   createPaymentTransaction,
+  getAllPaymentTransactions,
   getPaymentTransactionByTrxId
 } from '../services/transaction.service';
 import { PaymentRequest } from '../ThirdParty/BAYARIND_DATA_VA/BayarINDPaymentGateway';
@@ -35,6 +36,7 @@ import {
 } from '../utils/helper.utils';
 import { createPaymentLog } from '../services/payment_log.service';
 import jwtUtils from '../utils/jwt.utils';
+import { IPaginatePayload } from '../interfaces/pagination.interface';
 
 // Create Virtual Account
 export async function createVAController(req: Request, res: Response) {
@@ -471,3 +473,39 @@ export async function simulateSignatureController(req: Request, res: Response) {
 //     return res.status(500).send('An internal server error occurred.');
 //   }
 // }
+
+export const getPaymentTransactionsController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    // Extract query parameters (page, limit, search) from request
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search || ''; // optional search parameter
+
+    // Create payload to pass to the service function
+    const payload: IPaginatePayload = {
+      page,
+      limit,
+      search
+    };
+
+    // Fetch the paginated payment transactions
+    const result = await getAllPaymentTransactions(payload);
+
+    // Return success response with data
+    return res.status(200).json({
+      success: true,
+      message: 'Payment transactions retrieved successfully',
+      data: result
+    });
+  } catch (error: any) {
+    // Handle errors
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching payment transactions',
+      error: error.message
+    });
+  }
+};
